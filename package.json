@@ -1,6 +1,6 @@
 {
   "name": "create-app-images",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Skapar appikoner för tekniska appen",
   "main": "index.js",
   "repository": { 

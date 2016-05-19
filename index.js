@@ -5,6 +5,7 @@ var Jimp = require("jimp"),
 var mall = null;
 var doneCB = null;
 var progressCB = null;
+var errorCB = null;
 var targetPath = null;
 
 function positionAndComposite(err, logo) {
@@ -20,9 +21,12 @@ function resize(image) {
 	for(var i in config.splash) {
 		var splash = config.splash[i];
 		new Jimp(splash.width, splash.height, 0xFFFFFFFF, function (err, bg) {
-			if (err) throw err;
+			
+			if (err) handeError(err);
 			var pos = getCenter(bg.bitmap,image.bitmap);
-			bg.composite(image,pos.x,pos.y).write(targetPath+"/splash/"+splash.name+".png");
+			bg.composite(image,pos.x,pos.y).write(targetPath+"/splash/"+splash.name+".png",function(err){
+				if (err) handeError(err);
+			});
 			if(progressCB)
 				progressCB(splash.name);
 			console.log(splash.name+" created!");
@@ -32,9 +36,11 @@ function resize(image) {
 	for(var i in config.misc) {
 		var misc = config.misc[i];
 		new Jimp(misc.width, misc.height, 0xFFFFFFFF, function (err, bg) {
-			if (err) throw err;
+			if (err) handeError(err);
 			var pos = getCenter(bg.bitmap,image.bitmap);
-			bg.composite(image,pos.x,pos.y).write(targetPath+"/"+misc.name+".png");
+			bg.composite(image,pos.x,pos.y).write(targetPath+"/"+misc.name+".png",function(err){
+				if (err) handeError(err);
+			});
 			if(progressCB)
 				progressCB(misc.name);
 			console.log(misc.name+" created!");
@@ -44,7 +50,9 @@ function resize(image) {
 	for(var i in config.icons) {
 		var icon = config.icons[i];
 		var tmpImg = image.clone();
-		tmpImg.resize(icon.width,icon.height).write(targetPath+"/icons/"+icon.name+".png");
+		tmpImg.resize(icon.width,icon.height).write(targetPath+"/icons/"+icon.name+".png",function(err){
+				if (err) handeError(err);
+			});
 		if(progressCB)
 			progressCB(icon.name);
 		console.log(icon.name+" created!");
@@ -62,7 +70,16 @@ function getCenter(bitmap1,bitmap2) {
 	return pos;
 }
 
-module.exports = function (path,tPath,pCB, dCB,useMall){
+function handeError(error) {
+	if(!error)
+		return;
+	if(errorCB)
+		errorCB()
+	else
+		throw err
+}
+
+module.exports = function (path,tPath,pCB, dCB,eCB,useMall){
 	if(!path)
 		path = __dirname+"/logo.png";
 	
@@ -84,17 +101,20 @@ module.exports = function (path,tPath,pCB, dCB,useMall){
 		
 	progressCB = pCB;
 	doneCB = dCB;
+	errorCB = eCB;
 	if(useMall) {
 		Jimp.read(__dirname+"/mall.png", function (err, m) {
-			if (err) throw err;
+			if (err) handeError(err);
 
 			mall = m;
 
 			Jimp.read(path, function (err, logo) {
-				if (err) throw err;
+				if (err) handeError(err);
 				if(logo.bitmap.width > 480 || logo.bitmap.height > 400){
 					logo.scaleToFit(480,300,positionAndComposite);
-				} else {
+				} else if(logo.bitmap.width < 400 || logo.bitmap.height < 200)
+					logo.scaleToFit(400,200,positionAndComposite);
+				else {
 					positionAndComposite(err,logo)
 				}
 			});
@@ -102,7 +122,7 @@ module.exports = function (path,tPath,pCB, dCB,useMall){
 	}
 	else {
 		Jimp.read(path, function (err, logo) {
-			if (err) throw err;
+			if (err) handeError(err);
 			
 			resize(logo);
 		});
