@@ -1,11 +1,11 @@
 {
   "name": "create-app-images",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Skapar appikoner för tekniska appen",
   "main": "index.js",
-  "repository": { 
-    "type" : "git",
-    "url" : "https://github.com/gust42/create-app-images"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gust42/create-app-images"
   },
   "dependencies": {
     "jimp": "^0.2.24"
