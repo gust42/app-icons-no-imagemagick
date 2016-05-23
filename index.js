@@ -1,6 +1,7 @@
 var Jimp = require("jimp"),
 	fs = require('fs');
-	config = require("./config.json");
+	config = require("./config.json"),
+	extend = require('util')._extend;
 
 var mall = null;
 var doneCB = null;
@@ -29,7 +30,7 @@ function resize(image) {
 			});
 			if(progressCB)
 				progressCB(splash.name);
-			console.log(splash.name+" created!");
+			//console.log(splash.name+" created!");
 		});
 	}
 	
@@ -43,7 +44,7 @@ function resize(image) {
 			});
 			if(progressCB)
 				progressCB(misc.name);
-			console.log(misc.name+" created!");
+			//console.log(misc.name+" created!");
 		});
 	}
 	
@@ -55,7 +56,7 @@ function resize(image) {
 			});
 		if(progressCB)
 			progressCB(icon.name);
-		console.log(icon.name+" created!");
+		//console.log(icon.name+" created!");
 	}
 	
 	if(doneCB)
@@ -70,7 +71,7 @@ function getCenter(bitmap1,bitmap2) {
 	return pos;
 }
 
-function handeError(error) {
+function handleError(error) {
 	if(!error)
 		return;
 	if(errorCB)
@@ -79,17 +80,27 @@ function handeError(error) {
 		throw err
 }
 
-module.exports = function (path,tPath,pCB, dCB,eCB,useMall){
+var defaultOptions = {
+	progressCB : null,
+	errorCB : null,
+	useMall : true
+};
+
+module.exports = function (path,tPath,options,dCB){
 	if(!path)
 		path = __dirname+"/logo.png";
 	
 	targetPath = tPath;
+
+	if(options && typeof options == "object")
+		options = extend(defaultOptions,options);
+	else
+		options = defaultOptions;
 		
 	if(!targetPath)
 		targetPath = __dirname;
-		
-	if(useMall == null)
-		useMall = true;
+	
+	useMall = options.useMall;
 		
 	if (!fs.existsSync(targetPath+"/icons")){
 		fs.mkdirSync(targetPath+"/icons");
@@ -99,12 +110,13 @@ module.exports = function (path,tPath,pCB, dCB,eCB,useMall){
 		fs.mkdirSync(targetPath+"/splash");
 	}
 		
-	progressCB = pCB;
+	progressCB = options.progressCB;
+	errorCB = options.errorCB;
 	doneCB = dCB;
-	errorCB = eCB;
+
 	if(useMall) {
 		Jimp.read(__dirname+"/mall.png", function (err, m) {
-			if (err) handeError(err);
+			if (err) handleError(err);
 
 			mall = m;
 
@@ -122,7 +134,7 @@ module.exports = function (path,tPath,pCB, dCB,eCB,useMall){
 	}
 	else {
 		Jimp.read(path, function (err, logo) {
-			if (err) handeError(err);
+			if (err) handleError(err);
 			
 			resize(logo);
 		});
