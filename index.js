@@ -3,64 +3,74 @@ var Jimp = require("jimp"),
 	config = require("./config.json"),
 	extend = require('util')._extend;
 
-var mall = null;
-var doneCB = null;
-var progressCB = null;
-var errorCB = null;
-var targetPath = null;
-
-function positionAndComposite(err, logo) {
-	if (err) throw err;
+function createIcons(image, options) {
+	// for(var i in config.splash) {
+	// 	var splash = config.splash[i];
+	// 	new Jimp(splash.width, splash.height, 0xFFFFFFFF, function (err, bg) {
+			
+	// 		if (err) handeError(err);
+	// 		var pos = getCenter(bg.bitmap,image.bitmap);
+	// 		bg.composite(image,pos.x,pos.y).write(targetPath+"/splash/"+splash.name+".png",function(err){
+	// 			if (err) handeError(err);
+	// 		});
+	// 		if(progressCB)
+	// 			progressCB(splash.name);
+	// 		//console.log(splash.name+" created!");
+	// 	});
+	// }
 	
-	var pos = getCenter(mall.bitmap,logo.bitmap);
-	
-	pos.y = pos.y-mall.bitmap.height/10;
-	resize(mall.composite(logo,pos.x,pos.y));
+	// for(var i in config.misc) {
+	// 	var misc = config.misc[i];
+	// 	new Jimp(misc.width, misc.height, 0xFFFFFFFF, function (err, bg) {
+	// 		if (err) handeError(err);
+	// 		var pos = getCenter(bg.bitmap,image.bitmap);
+	// 		bg.composite(image,pos.x,pos.y).write(targetPath+"/"+misc.name+".png",function(err){
+	// 			if (err) handeError(err);
+	// 		});
+	// 		if(progressCB)
+	// 			progressCB(misc.name);
+	// 		//console.log(misc.name+" created!");
+	// 	});
+	// }
+	return new Promise(function(resolve, reject){
+		for(var i in config.icons) {
+			var icon = config.icons[i];
+			var tmpImg = image.clone();
+			tmpImg.resize(icon.width,icon.height).write(options.targetPath+"/"+icon.platform+"/icons/"+icon.name+".png",function(err){
+					if (err) {
+						handleError(err, options);
+						reject();
+					}
+				});
+			if(options.progressCB)
+				options.progressCB(icon.name);
+			//console.log(icon.name+" created!");
+		}
+		resolve();
+	});
 }
 
-function resize(image) {
-	for(var i in config.splash) {
-		var splash = config.splash[i];
-		new Jimp(splash.width, splash.height, 0xFFFFFFFF, function (err, bg) {
-			
-			if (err) handeError(err);
-			var pos = getCenter(bg.bitmap,image.bitmap);
-			bg.composite(image,pos.x,pos.y).write(targetPath+"/splash/"+splash.name+".png",function(err){
+function createSplash(image, options) {
+	return new Promise(function(resolve, reject){
+		for(var i in config.splash) {
+			var splash = config.splash[i];
+
+			new Jimp(splash.width, splash.height, 0xFFFFFFFF, function (err, bg) {
+		
 				if (err) handeError(err);
+				var pos = getCenter(bg.bitmap,image.bitmap);
+				bg.composite(image,pos.x,pos.y).write(options.targetPath+"/ios/splash/"+splash.name+".png",function(err){
+					if (err) handeError(err);
+				});
+				
+				if(options.progressCB)
+					options.progressCB(splash.name);
+				//console.log(splash.name+" created!");
 			});
-			if(progressCB)
-				progressCB(splash.name);
-			//console.log(splash.name+" created!");
-		});
-	}
-	
-	for(var i in config.misc) {
-		var misc = config.misc[i];
-		new Jimp(misc.width, misc.height, 0xFFFFFFFF, function (err, bg) {
-			if (err) handeError(err);
-			var pos = getCenter(bg.bitmap,image.bitmap);
-			bg.composite(image,pos.x,pos.y).write(targetPath+"/"+misc.name+".png",function(err){
-				if (err) handeError(err);
-			});
-			if(progressCB)
-				progressCB(misc.name);
-			//console.log(misc.name+" created!");
-		});
-	}
-	
-	for(var i in config.icons) {
-		var icon = config.icons[i];
-		var tmpImg = image.clone();
-		tmpImg.resize(icon.width,icon.height).write(targetPath+"/icons/"+icon.name+".png",function(err){
-				if (err) handeError(err);
-			});
-		if(progressCB)
-			progressCB(icon.name);
-		//console.log(icon.name+" created!");
-	}
-	
-	if(doneCB)
-		doneCB();
+
+		}
+		resolve();
+	});
 }
 
 function getCenter(bitmap1,bitmap2) {
@@ -71,72 +81,65 @@ function getCenter(bitmap1,bitmap2) {
 	return pos;
 }
 
-function handleError(error) {
+function handleError(error, options) {
 	if(!error)
 		return;
-	if(errorCB)
-		errorCB()
+	if(options.errorCB)
+		options.errorCB()
 	else
-		throw err
+		throw error;
 }
 
 var defaultOptions = {
+	iconImage : __dirname+"/icon.png",
+	splashImage : __dirname+"/splash.png",
+	targetPath : __dirname+"/resources/",
 	progressCB : null,
-	errorCB : null,
-	useMall : true
+	errorCB : null
 };
 
-module.exports = function (path,tPath,options,dCB){
-	if(!path)
-		path = __dirname+"/logo.png";
-	
-	targetPath = tPath;
+module.exports = function (options,doneCallback){
 
 	if(options && typeof options == "object")
 		options = extend(defaultOptions,options);
 	else
 		options = defaultOptions;
-		
-	if(!targetPath)
-		targetPath = __dirname;
 	
-	useMall = options.useMall;
-		
-	if (!fs.existsSync(targetPath+"/icons")){
-		fs.mkdirSync(targetPath+"/icons");
+	if (!fs.existsSync(options.targetPath)){
+		fs.mkdirSync(options.targetPath);
+	}
+
+	if (!fs.existsSync(options.targetPath+"/android")){
+		fs.mkdirSync(options.targetPath+"/android");
+	}
+
+	if (!fs.existsSync(options.targetPath+"/android/icons")){
+		fs.mkdirSync(options.targetPath+"/android/icons");
+	}
+
+	if (!fs.existsSync(options.targetPath+"/ios")){
+		fs.mkdirSync(options.targetPath+"/ios");
+	}
+
+	if (!fs.existsSync(options.targetPath+"/ios/icons")){
+		fs.mkdirSync(options.targetPath+"/ios/icons");
 	}
 	
-	if (!fs.existsSync(targetPath+"/splash")){
-		fs.mkdirSync(targetPath+"/splash");
+	if (!fs.existsSync(options.targetPath+"/ios/splash")){
+		fs.mkdirSync(options.targetPath+"/ios/splash");
 	}
+
+	Jimp.read(options.iconImage, function (err, icon) {
+		if (err) handleError(err,options);
 		
-	progressCB = options.progressCB;
-	errorCB = options.errorCB;
-	doneCB = dCB;
-
-	if(useMall) {
-		Jimp.read(__dirname+"/mall.png", function (err, m) {
-			if (err) handleError(err);
-
-			mall = m;
-
-			Jimp.read(path, function (err, logo) {
-				if (err) handeError(err);
-				if(logo.bitmap.width > 480 || logo.bitmap.height > 400){
-					logo.scaleToFit(480,300,positionAndComposite);
-				} else if(logo.bitmap.width < 400 || logo.bitmap.height < 200)
-					logo.scaleToFit(400,200,positionAndComposite);
-				else {
-					positionAndComposite(err,logo)
-				}
+		createIcons(icon, options).then(function(){
+			Jimp.read(options.splashImage, function (err, icon) {
+				if (err) handleError(err,options);
+				createSplash(icon,options).then(function(){
+					if(doneCallback)
+						doneCallback();
+				})
 			});
 		});
-	}
-	else {
-		Jimp.read(path, function (err, logo) {
-			if (err) handleError(err);
-			
-			resize(logo);
-		});
-	}
+	});
 }

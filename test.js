@@ -1,5 +1,7 @@
 var create = require('./index.js');
 
-create(null,"test",null,function(){
+create({
+	
+},function(){
 	console.log('done!')
 });
