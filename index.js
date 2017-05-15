@@ -4,34 +4,6 @@ var Jimp = require("jimp"),
 	extend = require('util')._extend;
 
 function createIcons(image, options) {
-	// for(var i in config.splash) {
-	// 	var splash = config.splash[i];
-	// 	new Jimp(splash.width, splash.height, 0xFFFFFFFF, function (err, bg) {
-			
-	// 		if (err) handeError(err);
-	// 		var pos = getCenter(bg.bitmap,image.bitmap);
-	// 		bg.composite(image,pos.x,pos.y).write(targetPath+"/splash/"+splash.name+".png",function(err){
-	// 			if (err) handeError(err);
-	// 		});
-	// 		if(progressCB)
-	// 			progressCB(splash.name);
-	// 		//console.log(splash.name+" created!");
-	// 	});
-	// }
-	
-	// for(var i in config.misc) {
-	// 	var misc = config.misc[i];
-	// 	new Jimp(misc.width, misc.height, 0xFFFFFFFF, function (err, bg) {
-	// 		if (err) handeError(err);
-	// 		var pos = getCenter(bg.bitmap,image.bitmap);
-	// 		bg.composite(image,pos.x,pos.y).write(targetPath+"/"+misc.name+".png",function(err){
-	// 			if (err) handeError(err);
-	// 		});
-	// 		if(progressCB)
-	// 			progressCB(misc.name);
-	// 		//console.log(misc.name+" created!");
-	// 	});
-	// }
 	return new Promise(function(resolve, reject){
 		for(var i in config.icons) {
 			var icon = config.icons[i];
@@ -60,11 +32,40 @@ function createSplash(image, options) {
 				if (err) handeError(err);
 				var pos = getCenter(bg.bitmap,image.bitmap);
 				bg.composite(image,pos.x,pos.y).write(options.targetPath+"/ios/splash/"+splash.name+".png",function(err){
-					if (err) handeError(err);
+					if (err) {
+						handleError(err, options);
+						reject();
+					}
 				});
 				
 				if(options.progressCB)
 					options.progressCB(splash.name);
+				//console.log(splash.name+" created!");
+			});
+
+		}
+		resolve();
+	});
+}
+
+function createMisc(image, options) {
+	return new Promise(function(resolve, reject){
+		for(var i in config.misc) {
+			var misc = config.misc[i];
+
+			new Jimp(misc.width, misc.height, 0xFFFFFFFF, function (err, bg) {
+		
+				if (err) handeError(err);
+				var pos = getCenter(bg.bitmap,image.bitmap);
+				bg.composite(image,pos.x,pos.y).write(options.targetPath+"/misc/"+misc.name+".png",function(err){
+					if (err) {
+						handleError(err, options);
+						reject();
+					}
+				});
+				
+				if(options.progressCB)
+					options.progressCB(misc.name);
 				//console.log(splash.name+" created!");
 			});
 
@@ -95,6 +96,7 @@ var defaultOptions = {
 	splashImage : __dirname+"/splash.png",
 	targetPath : __dirname+"/resources/",
 	progressCB : null,
+	createStoreIcons : true,
 	errorCB : null
 };
 
@@ -107,6 +109,10 @@ module.exports = function (options,doneCallback){
 	
 	if (!fs.existsSync(options.targetPath)){
 		fs.mkdirSync(options.targetPath);
+	}
+
+	if (!fs.existsSync(options.targetPath+"/misc")){
+		fs.mkdirSync(options.targetPath+"/misc");
 	}
 
 	if (!fs.existsSync(options.targetPath+"/android")){
@@ -133,12 +139,19 @@ module.exports = function (options,doneCallback){
 		if (err) handleError(err,options);
 		
 		createIcons(icon, options).then(function(){
-			Jimp.read(options.splashImage, function (err, icon) {
+			Jimp.read(options.splashImage, function (err, splash) {
 				if (err) handleError(err,options);
-				createSplash(icon,options).then(function(){
-					if(doneCallback)
-						doneCallback();
-				})
+				createSplash(splash,options).then(function(){
+					if(options.createStoreIcons) {
+						createMisc(splash,options).then(function(){
+							if(doneCallback)
+								doneCallback();
+						});
+					} else {
+						if(doneCallback)
+							doneCallback();
+					}
+				});
 			});
 		});
 	});

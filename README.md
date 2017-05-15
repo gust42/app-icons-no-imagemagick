@@ -2,7 +2,9 @@
 
 A library to generate app icons and splash, mainly designed for use with cordova.
 
-Uses https://github.com/oliver-moran/jimp for image manupilation so it requieres no external dependencies.
+Also creates icons for appstore and google play.
+
+Uses https://github.com/oliver-moran/jimp for image manupilation so it requires no external dependencies.
 
 ## Usage
 
@@ -23,7 +25,8 @@ var defaultOptions = {
 	iconImage : __dirname+"/icon.png",
 	splashImage : __dirname+"/splash.png",
 	targetPath : __dirname+"/resources/",
-	progressCB : null,
+	progressCB : null, /* Called after every image is created */
+	createStoreIcons : true,
 	errorCB : null
 };
 ```
