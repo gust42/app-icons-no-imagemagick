@@ -127,8 +127,8 @@ module.exports = function (options,doneCallback){
 		fs.mkdirSync(options.targetPath+"/ios");
 	}
 
-	if (!fs.existsSync(options.targetPath+"/ios/icons")){
-		fs.mkdirSync(options.targetPath+"/ios/icons");
+	if (!fs.existsSync(options.targetPath+"/ios/icon")){
+		fs.mkdirSync(options.targetPath+"/ios/icon");
 	}
 	
 	if (!fs.existsSync(options.targetPath+"/ios/splash")){
