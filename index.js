@@ -1,6 +1,7 @@
 var Jimp = require("jimp"),
 	fs = require('fs');
 	config = require("./config.json"),
+	path = require('path');
 	extend = require('util')._extend;
 
 function createIcons(image, options) {
@@ -107,9 +108,14 @@ module.exports = function (options,doneCallback){
 	else
 		options = defaultOptions;
 	
-	if (!fs.existsSync(options.targetPath)){
-		fs.mkdirSync(options.targetPath);
-	}
+	var targetDir = options.targetPath;
+	targetDir.split('/').forEach(function(dir, index, splits) {
+		var parent = splits.slice(0, index).join('/');
+		var dirPath = path.resolve(parent, dir);
+		if (!fs.existsSync(dirPath)) {
+			fs.mkdirSync(dirPath);
+		}
+	});
 
 	if (!fs.existsSync(options.targetPath+"/misc")){
 		fs.mkdirSync(options.targetPath+"/misc");
@@ -119,8 +125,8 @@ module.exports = function (options,doneCallback){
 		fs.mkdirSync(options.targetPath+"/android");
 	}
 
-	if (!fs.existsSync(options.targetPath+"/android/icons")){
-		fs.mkdirSync(options.targetPath+"/android/icons");
+	if (!fs.existsSync(options.targetPath+"/android/icon")){
+		fs.mkdirSync(options.targetPath+"/android/icon");
 	}
 
 	if (!fs.existsSync(options.targetPath+"/ios")){
