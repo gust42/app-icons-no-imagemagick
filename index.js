@@ -8,7 +8,7 @@ function createIcons(image, options) {
 		for(var i in config.icons) {
 			var icon = config.icons[i];
 			var tmpImg = image.clone();
-			tmpImg.resize(icon.width,icon.height).write(options.targetPath+"/"+icon.platform+"/icons/"+icon.name+".png",function(err){
+			tmpImg.resize(icon.width,icon.height).write(options.targetPath+"/"+icon.platform+"/icon/"+icon.name+".png",function(err){
 					if (err) {
 						handleError(err, options);
 						reject();
