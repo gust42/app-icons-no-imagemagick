@@ -24,15 +24,20 @@ function createIcons(image, options) {
 }
 
 function createSplash(image, options) {
+	console.log('Creating splash');
 	return new Promise(function(resolve, reject){
 		for(var i in config.splash) {
 			var splash = config.splash[i];
 
 			new Jimp(splash.width, splash.height, 0xFFFFFFFF, function (err, bg) {
-		
 				if (err) handeError(err);
+
+				var platform = "ios";
+				if(splash.platform)
+					platform = splash.platform
+
 				var pos = getCenter(bg.bitmap,image.bitmap);
-				bg.composite(image,pos.x,pos.y).write(options.targetPath+"/ios/splash/"+splash.name+".png",function(err){
+				bg.composite(image,pos.x,pos.y).write(options.targetPath+"/"+splash.platform+"/splash/"+splash.name+".png",function(err){
 					if (err) {
 						handleError(err, options);
 						reject();
@@ -127,6 +132,10 @@ module.exports = function (options,doneCallback){
 
 	if (!fs.existsSync(options.targetPath+"/android/icon")){
 		fs.mkdirSync(options.targetPath+"/android/icon");
+	}
+
+	if (!fs.existsSync(options.targetPath+"/android/splash")){
+		fs.mkdirSync(options.targetPath+"/android/splash");
 	}
 
 	if (!fs.existsSync(options.targetPath+"/ios")){

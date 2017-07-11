@@ -1,6 +1,6 @@
 {
   "name": "app-icons-no-imagemagick",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Create app icons, mainly for use with cordova",
   "main": "index.js",
   "repository": {
