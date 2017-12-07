@@ -1,7 +1,7 @@
 var create = require('./index.js');
 
 create({
-	targetPath : "test/test/test"
+	targetPath : "test"
 },function(){
 	console.log('done!')
 });

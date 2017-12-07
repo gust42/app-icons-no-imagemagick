@@ -12,7 +12,7 @@
 		{ "width": 768, "height": 1024, "name" : "Default-Portrait~ipad", "platform" : "ios"  },
 		{ "width": 640, "height": 960, "name" : "Default@2x~iphone", "platform" : "ios"  },
 		{ "width": 320, "height": 480, "name" : "Default~iphone.png", "platform" : "ios"  },
-		
+
 		{ "width": 800, "height": 480, "name" : "drawable-land-hdpi-screen", "platform" : "android" },
 		{ "width": 320, "height": 240, "name" : "drawable-land-ldpi-screen", "platform" : "android" },
 		{ "width": 480, "height": 320, "name" : "drawable-land-mdpi-screen", "platform" : "android" },
@@ -50,7 +50,9 @@
 		{ "width": 48, "height": 48, "name" : "drawable-mdpi-icon", "platform" : "android" },
 		{ "width": 72, "height": 72, "name" : "drawable-hdpi-icon", "platform" : "android" },
 		{ "width": 96, "height": 96, "name" : "drawable-xhdpi-icon", "platform" : "android" },
-		{ "width": 144, "height": 144, "name" : "drawable-xxhdpi-icon", "platform" : "android" }
+		{ "width": 144, "height": 144, "name" : "drawable-xxhdpi-icon", "platform" : "android" },
+		{ "width": 192, "height": 192, "name" : "drawable-xxxhdpi-icon", "platform" : "android" }
+
 	],
 	"misc" : [
 		{ "width": 1024, "height": 1024, "name" : "appstore" },
