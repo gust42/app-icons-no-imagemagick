@@ -11,7 +11,7 @@
 		{ "width": 2048, "height": 2732, "name" : "Default-Portrait@~ipadpro", "platform" : "ios"  },
 		{ "width": 768, "height": 1024, "name" : "Default-Portrait~ipad", "platform" : "ios"  },
 		{ "width": 640, "height": 960, "name" : "Default@2x~iphone", "platform" : "ios"  },
-		{ "width": 320, "height": 480, "name" : "Default~iphone.png", "platform" : "ios"  },
+		{ "width": 320, "height": 480, "name" : "Default~iphone", "platform" : "ios"  },
 
 		{ "width": 800, "height": 480, "name" : "drawable-land-hdpi-screen", "platform" : "android" },
 		{ "width": 320, "height": 240, "name" : "drawable-land-ldpi-screen", "platform" : "android" },
